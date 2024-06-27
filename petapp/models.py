@@ -37,6 +37,12 @@ class Category(models.Model):
     
 
 class Pet(models.Model):
+    STATUS_CHOICES = (
+        ('one', 'One'),
+        ('two', 'Two'),
+        ('three', 'Three'),
+    )
+
     image = models.ImageField(upload_to='pets/', null=True, blank=True)
     description = models.TextField()
     breed = models.CharField(max_length=100)
@@ -45,7 +51,7 @@ class Pet(models.Model):
     sex = models.CharField(max_length=10)
     weight = models.FloatField()
     medical_conditions = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='one')
 
     def __str__(self):
         return f"{self.breed} - {self.age} years old"
-

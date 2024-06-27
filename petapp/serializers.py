@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Donor, Buyer, CustomUser,Category
+from .models import Donor, Buyer, CustomUser,Category,Pet
 
 
 class DonorRegistrationSerializer(serializers.ModelSerializer):
@@ -69,3 +69,22 @@ class BuyerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Buyer
         fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
+
+
+
+
+
+
+
+class PetDonationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pet
+        fields = ['image', 'description', 'breed', 'category', 'age', 'sex', 'weight', 'medical_conditions', 'status']
+
+
+
+
+class PetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pet
+        fields = ['id', 'image', 'description', 'breed', 'category', 'age', 'sex', 'weight', 'medical_conditions', 'status']        

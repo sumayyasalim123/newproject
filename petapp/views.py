@@ -15,10 +15,16 @@ from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated 
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import Pet
 
 
-from .models import CustomUser,Donor,Buyer,Category
-from .serializers import DonorRegistrationSerializer,BuyerRegistrationSerializer,LoginSerializer,CategorySerializer,DonorSerializer,BuyerSerializer
+from .models import CustomUser,Donor,Buyer,Category,Pet
+from .serializers import DonorRegistrationSerializer,BuyerRegistrationSerializer,LoginSerializer,CategorySerializer,DonorSerializer,BuyerSerializer,PetDonationSerializer,PetSerializer
 
 @api_view(['POST'])
 def register_donor(request):
@@ -207,3 +213,64 @@ class BuyerDeleteAPIView(generics.DestroyAPIView):
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer  
+
+
+
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+
+
+@api_view(['POST'])
+def pet_donation_create(request):
+    serializer = PetDonationSerializer(data=request.data)
+    if serializer.is_valid():
+        # Extract category_id from request data
+        category_id = request.data.get('category')
+        category = get_object_or_404(Category, id=category_id)
+        
+        # Save pet object with category
+        serializer.save(category=category)
+        return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class PetListAPIView(generics.ListAPIView):
+    queryset = Pet.objects.all()
+    serializer_class = PetSerializer
+
+
+
+class PetViewSet(viewsets.ModelViewSet):
+    queryset = Pet.objects.all()
+    serializer_class = PetSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Example: Use appropriate permissions
+
+    @action(detail=True, methods=['post'])
+    def approve_pet(self, request, pk=None):
+        pet = self.get_object()
+        if pet.status == 'one':
+            pet.status = 'two'  # Approved status
+            pet.save()
+            return Response({'message': 'Pet donation approved.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Pet donation cannot be approved.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def disapprove_pet(self, request, pk=None):
+        pet = self.get_object()
+        if pet.status == 'one':
+            pet.status = 'three'  # Disapproved status
+            pet.save()
+            return Response({'message': 'Pet donation disapproved.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Pet donation cannot be disapproved.'}, status=status.HTTP_400_BAD_REQUEST)
