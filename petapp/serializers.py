@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Donor, Buyer, CustomUser,Category,Pet
+from .models import Donor, Buyer, CustomUser,Category,Pet,Purchase
 
 
 class DonorRegistrationSerializer(serializers.ModelSerializer):
@@ -76,15 +76,79 @@ class BuyerSerializer(serializers.ModelSerializer):
 
 
 
+
+
 class PetDonationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
-        fields = ['image', 'description', 'breed', 'category', 'age', 'sex', 'weight', 'medical_conditions', 'status']
+        fields = ['image', 'description', 'breed', 'category', 'age', 'sex', 'weight', 'medical_conditions', 'status', 'price']
 
 
 
 
 class PetSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name')  # Include category name
+
     class Meta:
         model = Pet
-        fields = ['id', 'image', 'description', 'breed', 'category', 'age', 'sex', 'weight', 'medical_conditions', 'status']        
+        fields = ['id', 'image', 'description', 'breed', 'category_name', 'age', 'sex', 'weight', 'medical_conditions', 'status', 'price','donor']
+
+
+
+
+
+
+
+
+
+
+class PetCountSerializer(serializers.Serializer):
+    count = serializers.IntegerField()
+
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email']  
+
+
+
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    pet = PetSerializer()  # Use PetSerializer to serialize the pet field
+    buyer = BuyerSerializer()  # Use BuyerSerializer to serialize the buyer field
+
+    class Meta:
+        model = Purchase
+        fields = ('id', 'pet', 'buyer', 'purchase_date', 'total_price')
+    def create(self, validated_data):
+        return Purchase.objects.create(**validated_data) 
+
+
+
+
+
+class DonorprofileSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Donor
+        fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
+
+    def get_email(self, obj):
+        return obj.user.email     
+
+
+
+
+class BuyerprofileSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Buyer
+        fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
+
+    def get_email(self, obj):
+        return obj.user.email          

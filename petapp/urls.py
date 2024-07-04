@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views 
 from .views import LoginView
-from .views import AddCategoryAPIView,DonorListAPIView,DonorDeleteAPIView,BuyerListAPIView,BuyerDeleteAPIView,CategoryListCreateView, CategoryDetailView
+from .views import AddCategoryAPIView,DonorListAPIView,DonorDeleteAPIView,BuyerListAPIView,BuyerDeleteAPIView,CategoryListCreateView, CategoryDetailView,ApprovedPetsListView
 
 
 
@@ -20,8 +20,27 @@ urlpatterns = [
     path('api/categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
     path('api/pets/donate/', views.pet_donation_create, name='pet-donation-create'),
     path('api/pets/', views.PetListAPIView.as_view(), name='pet-list'),
-    path('api/pets/<int:pk>/approve/', views.PetViewSet.as_view({'post': 'approve_pet'}), name='approve-pet'),
-    path('api/pets/<int:pk>/disapprove/', views.PetViewSet.as_view({'post': 'disapprove_pet'}), name='disapprove-pet'),
+    # path('api/pets/approve/<int:pk>/', views.PetViewSet.as_view({'post': 'approve_pet'}), name='approve-pet'),
+    path('api/pets/approve/<int:id>/',views.approve, name='approve'),
+    # path('api/pets/disapprove/<int:pk>/', views.PetViewSet.as_view({'post': 'disapprove_pet'}), name='disapprove-pet'),
+    path('api/pets/disapprove/<int:id>/',views.disapprove, name='disapprove'),
+    path('api/pets/approved/', ApprovedPetsListView.as_view(), name='approved-pets-list'),
+    path('api/pets/count/', views.count_status_one_pets, name='count_status_one_pets'),
+    path('api/purchases/', views.create_purchase, name='create_purchase'),
+    path('api/donor/purchaselist/', views.DonorPurchaseListView.as_view(), name='donor-purchase-list'),
+    path('api/admin/purchases/', views.AdminPurchaseListView.as_view(), name='admin-purchases-list'),
+  
+     
+    
+    path('api/donor/profile/', views.DonorProfileView.as_view(), name='donor_profile'),
+     path('api/donor/profile/edit/', views.DonorProfileEditView.as_view(), name='donor-profile-edit'),
+      path('api/buyer/profile/', views.BuyerProfileView.as_view(), name='buyer_profile'),
+     path('api/buyer/profile/edit/', views.BuyerProfileEditView.as_view(), name='buyer-profile-edit'),
+ 
 
+
+
+
+    path('api/admin-profile/<int:id>/<str:username>/<int:userType>/', views.AdminProfileView.as_view(), name='admin-profile'),
     
     ]
