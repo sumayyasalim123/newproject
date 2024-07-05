@@ -36,11 +36,14 @@ urlpatterns = [
      path('api/donor/profile/edit/', views.DonorProfileEditView.as_view(), name='donor-profile-edit'),
       path('api/buyer/profile/', views.BuyerProfileView.as_view(), name='buyer_profile'),
      path('api/buyer/profile/edit/', views.BuyerProfileEditView.as_view(), name='buyer-profile-edit'),
- 
-
-
-
-
+    path('api/admin-profile/',views.AdminProfileView.as_view(), name='admin-profile'),
+       path('api/admin-profile/edit/', views.AdminProfileEditView.as_view(), name='admin-profile-edit'),
+     path('api/admin-password-reset/', views.AdminPasswordResetView.as_view(), name='admin-password-reset'),
+     path('api/donor-password-reset/', views.DonorPasswordResetView.as_view(), name='donor-password-reset'),
+      path('api/buyer-password-reset/', views.BuyerPasswordResetView.as_view(), name='buyer-password-reset'),
+      path('api/logout/admin/', views.logout_admin, name='logout-admin'),
+          path('api/logout/donor/', views.logout_donor, name='logout-donor'),
+    path('api/logout/buyer/', views.logout_buyer, name='logout-buyer'),
     path('api/admin-profile/<int:id>/<str:username>/<int:userType>/', views.AdminProfileView.as_view(), name='admin-profile'),
     
     ]

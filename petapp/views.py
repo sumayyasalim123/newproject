@@ -25,6 +25,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Pet
+from django.contrib.auth import logout
 from rest_framework.permissions import IsAdminUser
 
 
@@ -471,5 +472,175 @@ class BuyerProfileEditView(APIView):
         
         return Response({'status': 'success'}, status=status.HTTP_200_OK)
     
+
+
+
+
+
+
+
+class AdminProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # Retrieve the authenticated user
+        serializer = CustomUserSerializer(user)  # Serialize the user data
+        return Response(serializer.data)
+
+
+
+
+
+class AdminProfileEditView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        admin = request.user  # Assuming request.user is the logged-in CustomUser object
+        serializer = CustomUserSerializer(admin)
+        return Response(serializer.data)
+
+    def post(self, request):
+        admin = request.user  # Assuming request.user is the logged-in CustomUser object
+        
+        if admin.user_type != 1:
+            return Response({'error': 'You are not authorized to edit admin profile'}, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        
+        # Update fields if provided in the request data
+        if 'email' in data:
+            admin.email = data['email']
+        if 'username' in data:
+            admin.username = data['username']
+        # Add other fields as needed
+        
+        admin.save()
+        
+        serializer = CustomUserSerializer(admin)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class AdminPasswordResetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        admin = request.user  # Assuming request.user is the logged-in CustomUser object
+        
+        if admin.user_type != 1:
+            return Response({'error': 'You are not authorized to reset admin password'}, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        admin.set_password(new_password)
+        admin.save()
+        
+        return Response({'status': 'Password updated successfully'}, status=status.HTTP_200_OK)
+    
+
+
+
+
+
+
+
+
+class DonorPasswordResetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        donor = request.user  # Assuming request.user is the logged-in CustomUser object
+        
+        if donor.user_type != 2:
+            return Response({'error': 'You are not authorized to reset admin password'}, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        donor.set_password(new_password)
+        donor.save()
+        
+        return Response({'status': 'Password updated successfully'}, status=status.HTTP_200_OK)
+    
+
+
+
+
+
+
+class BuyerPasswordResetView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        buyer = request.user  # Assuming request.user is the logged-in CustomUser object
+        
+        if buyer.user_type != 3:
+            return Response({'error': 'You are not authorized to reset admin password'}, status=status.HTTP_403_FORBIDDEN)
+        
+        data = request.data
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        if new_password != confirm_password:
+            return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        buyer.set_password(new_password)
+        buyer.save()
+        
+        return Response({'status': 'Password updated successfully'}, status=status.HTTP_200_OK)
+    
+
+
+
+
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_admin(request):
+    try:
+        refresh_token = request.data.get('refresh_token')
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        logout(request)
+        return Response({'message': 'Admin logged out successfully.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_donor(request):
+    try:
+        refresh_token = request.data.get('refresh_token')
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        logout(request)
+        return Response({'message': 'Donor logged out successfully.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_buyer(request):
+    try:
+        refresh_token = request.data.get('refresh_token')
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        logout(request)
+        return Response({'message': 'Buyer logged out successfully.'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
