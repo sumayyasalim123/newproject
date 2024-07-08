@@ -42,6 +42,25 @@ def register_donor(request):
         phone_number = request.data.get('mobile_number')
         donoraddress = request.data.get('address')
         
+
+
+        try:
+            User.objects.get(username=username)
+            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            pass
+        
+        try:
+            User.objects.get(email=email)
+            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            pass
+        
+        # Validate phone number length
+        if len(phone_number) != 10:
+            return Response({'error': 'Mobile number must be 10 digits.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
         # Generate a random password
         password = ''.join(random.choices(string.digits, k=6))
         
@@ -86,6 +105,27 @@ def register_buyer(request):
         phone_number = request.data.get('mobile_number')
         donoraddress = request.data.get('address')
         
+
+        # Validate unique constraints
+        existing_user = User.objects.filter(username=username).exists()
+        if existing_user:
+            return Response({'error': f'Username "{username}" already exists.'}, status=status.HTTP_409_CONFLICT)
+        
+        existing_email = User.objects.filter(email=email).exists()
+        if existing_email:
+            return Response({'error': f'Email "{email}" already exists.'}, status=status.HTTP_409_CONFLICT)
+        
+        # Validate phone number length
+        if len(phone_number) != 10:
+            return Response({'error': 'Mobile number must be 10 digits.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+
+
+
+
         # Generate a random password
         password = ''.join(random.choices(string.digits, k=6))
         

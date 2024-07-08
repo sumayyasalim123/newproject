@@ -58,18 +58,23 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class DonorSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
     class Meta:
         model = Donor
-        fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
 
+        fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
+    def get_email(self, obj):
+        return obj.user.email
 
 
 
 class BuyerSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
     class Meta:
         model = Buyer
         fields = ['id', 'user', 'name', 'email', 'mobile_number', 'address']
-
+    def get_email(self, obj):
+        return obj.user.email
 
 
 
