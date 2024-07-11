@@ -120,16 +120,25 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 
+class PetdonorSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name')  # Include category name
+    donor_name = serializers.CharField(source='donor.username', read_only=True)  # Add donor name
+    
+    class Meta:
+        model = Pet
+        fields = ['id', 'image', 'description', 'breed', 'category_name', 'age', 'sex', 'weight', 'medical_conditions', 'status', 'price', 'donor_name']
 
 class PurchaseSerializer(serializers.ModelSerializer):
-    pet = PetSerializer()  # Use PetSerializer to serialize the pet field
+    pet = PetdonorSerializer()  # Use PetdonorSerializer to include donor name
     buyer = BuyerSerializer()  # Use BuyerSerializer to serialize the buyer field
 
     class Meta:
         model = Purchase
         fields = ('id', 'pet', 'buyer', 'purchase_date', 'total_price')
+    
     def create(self, validated_data):
-        return Purchase.objects.create(**validated_data) 
+        return Purchase.objects.create(**validated_data)
+ 
 
 
 
